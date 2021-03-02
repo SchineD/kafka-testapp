@@ -13,19 +13,20 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class KafkaApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         ConfigurableApplicationContext context = SpringApplication.run(KafkaApplication.class, args);
 
-        MessageProducer producer = context.getBean(MessageProducer.class);
+        MessageProducer producer = context.getBean(MessageProducer.class);  // Core Banking System
         MessageListener listener = context.getBean(MessageListener.class);
 
-        producer.sendMessageToPaymentTopic("Test-Message");
+        produceRandomPayments(producer);
     }
 
     @Bean
@@ -38,4 +39,16 @@ public class KafkaApplication {
         return new MessageListener();
     }
 
+    public static void produceRandomPayments(MessageProducer producer) throws InterruptedException {
+
+        System.out.println("************----------- Generate 100 random Payments -----------************");
+
+        Random random = new Random();
+
+        for(int i = 0; i < 100; i++) {
+            int randomPaymentAmount = random.nextInt(2000);
+            producer.sendMessageToPaymentTopic(String.valueOf(randomPaymentAmount));
+            Thread.sleep(700);
+        }
+    }
 }
